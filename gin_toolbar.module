@@ -1,11 +1,55 @@
 <?php
 
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Render\Markup;
+
 /**
  ** Implements hook_preprocess_HOOK() for page_attachments.
  **/
 function gin_toolbar_page_attachments_alter(&$page) {
+  // Get path
+  $route = \Drupal::routeMatch()->getRouteName();
+
   // Is User logged in?
   $logged_in = \Drupal::currentUser()->isAuthenticated();
+
+  // Is Gin the default admin theme?
+  $admin_theme = \Drupal::config('system.theme')->get('admin');
+
+  if ($admin_theme === 'gin') {
+    // Get user config accent color
+    $config = \Drupal::config('gin.settings');
+    $accent_color = $config->get('accent_color');
+
+    if ($accent_color) {
+      $accent_color_hover = _gin_toolbar_adjustBrightness($accent_color, -0.1);
+      $accent_color_active = _gin_toolbar_adjustBrightness($accent_color, -0.2);
+      $accent_color_a20 = _gin_toolbar_adjustBrightness($accent_color, 0.92);
+      $accent_color_svg = str_replace('#', '%23', $accent_color);
+
+      $accent_color_css = <<<EOH
+        :root {
+          --colorPrimary: $accent_color;
+          --colorPrimaryHover: $accent_color_hover;
+          --colorPrimaryActive: $accent_color_active;
+        }
+
+        body .toolbar-tray-horizontal ul li.menu-item--expanded ul li.menu-item--expanded, .toolbar-tray-horizontal .toolbar-menu:not(:first-child) li.menu-item--expanded>a:focus {
+          background-image: url("data:image/svg+xml,%3Csvg width='9' height='14' viewBox='0 0 9 14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 1.7109375,0.31445312 0.2890625,1.7226562 5.5917969,7.0761719 0.2890625,12.429688 1.7109375,13.837891 8.4082031,7.0761719 Z' fill='$accent_color_svg'/%3E%3C/svg%3E");
+        }
+      EOH;
+    }
+
+    if ($logged_in && $accent_color) {
+      $page['#attached']['html_head'][] = [
+        [
+          '#tag' => 'style',
+          '#value' => Markup::create($accent_color_css),
+        ],
+        'gin-accent-color'
+      ];
+    }
+  }
 
   if ($logged_in) {
     $page['#attached']['library'][] = 'gin/gin_toolbar';
@@ -19,4 +63,29 @@ function gin_toolbar_theme_registry_alter(&$theme_registry) {
   $theme_registry['toolbar']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
 }
 
+/**
+ * Increases or decreases the brightness of a color by a percentage of the current brightness.
+ *
+ * @param   string  $hexCode        Supported formats: `#FFF`, `#FFFFFF`, `FFF`, `FFFFFF`
+ * @param   float   $adjustPercent  A number between -1 and 1. E.g. 0.3 = 30% lighter; -0.4 = 40% darker.
+ *
+ * @return  string
+ */
+function _gin_toolbar_adjustBrightness($hexCode, $adjustPercent) {
+  $hexCode = ltrim($hexCode, '#');
 
+  if (strlen($hexCode) == 3) {
+      $hexCode = $hexCode[0] . $hexCode[0] . $hexCode[1] . $hexCode[1] . $hexCode[2] . $hexCode[2];
+  }
+
+  $hexCode = array_map('hexdec', str_split($hexCode, 2));
+
+  foreach ($hexCode as & $color) {
+      $adjustableLimit = $adjustPercent < 0 ? $color : 255 - $color;
+      $adjustAmount = ceil($adjustableLimit * $adjustPercent);
+
+      $color = str_pad(dechex($color + $adjustAmount), 2, '0', STR_PAD_LEFT);
+  }
+
+  return '#' . implode($hexCode);
+}

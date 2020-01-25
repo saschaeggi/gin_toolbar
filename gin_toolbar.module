@@ -1,0 +1,22 @@
+<?php
+
+/**
+ ** Implements hook_preprocess_HOOK() for page_attachments.
+ **/
+function gin_toolbar_page_attachments_alter(&$page) {
+  // Is User logged in?
+  $logged_in = \Drupal::currentUser()->isAuthenticated();
+
+  if ($logged_in) {
+    $page['#attached']['library'][] = 'gin/gin_toolbar';
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter
+ */
+function gin_toolbar_theme_registry_alter(&$theme_registry) {
+  $theme_registry['toolbar']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
+}
+
+

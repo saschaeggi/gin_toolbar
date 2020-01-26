@@ -2,13 +2,14 @@
 
 /**
  * @file
+ * gin_toolbar.module
  */
 
 use Drupal\Core\Render\Markup;
 
 /**
- * * Implements hook_preprocess_HOOK() for page_attachments.
- **/
+ * Implements hook_preprocess_HOOK() for page_attachments.
+ */
 function gin_toolbar_page_attachments_alter(&$page) {
   // Get path.
   $route = \Drupal::routeMatch()->getRouteName();
@@ -25,9 +26,9 @@ function gin_toolbar_page_attachments_alter(&$page) {
     $accent_color = $config->get('accent_color');
 
     if ($accent_color) {
-      $accent_color_hover = _gin_toolbar_adjustBrightness($accent_color, -0.1);
-      $accent_color_active = _gin_toolbar_adjustBrightness($accent_color, -0.2);
-      $accent_color_a20 = _gin_toolbar_adjustBrightness($accent_color, 0.92);
+      $accent_color_hover = _gin_toolbar_adjust_brightness($accent_color, -0.1);
+      $accent_color_active = _gin_toolbar_adjust_brightness($accent_color, -0.2);
+      $accent_color_a20 = _gin_toolbar_adjust_brightness($accent_color, 0.92);
       $accent_color_svg = str_replace('#', '%23', $accent_color);
 
       $accent_color_css = <<<EOH
@@ -60,23 +61,16 @@ EOH;
 }
 
 /**
- * Implements hook_theme_registry_alter.
+ * Registry_alter()
  */
 function gin_toolbar_theme_registry_alter(&$theme_registry) {
   $theme_registry['toolbar']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
 }
 
 /**
- * Increases or decreases the brightness of a color by a percentage of the current brightness.
- *
- * @param string $hexCode
- *   Supported formats: `#FFF`, `#FFFFFF`, `FFF`, `FFFFFF`.
- * @param float $adjustPercent
- *   A number between -1 and 1. E.g. 0.3 = 30% lighter; -0.4 = 40% darker.
- *
- * @return string
+ * Increases or decreases the brightness of a color.
  */
-function _gin_toolbar_adjustBrightness($hexCode, $adjustPercent) {
+function _gin_toolbar_adjust_brightness($hexCode, $adjustPercent) {
   $hexCode = ltrim($hexCode, '#');
 
   if (strlen($hexCode) == 3) {

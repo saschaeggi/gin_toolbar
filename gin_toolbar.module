@@ -28,10 +28,10 @@ function gin_toolbar_page_attachments_alter(&$page) {
     $accent_color_svg = str_replace('#', '%23', $accent_color);
 
     $accent_color_css = <<<EOH
-      :root {
-        --colorPrimary: $accent_color;
-        --colorPrimaryHover: $accent_color_hover;
-        --colorPrimaryActive: $accent_color_active;
+      body {
+        --colorGinPrimary: $accent_color;
+        --colorGinPrimaryHover: $accent_color_hover;
+        --colorGinPrimaryActive: $accent_color_active;
       }
 
       body .toolbar-tray-horizontal ul li.menu-item--expanded ul li.menu-item--expanded, .toolbar-tray-horizontal .toolbar-menu:not(:first-child) li.menu-item--expanded>a:focus {

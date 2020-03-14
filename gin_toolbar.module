@@ -98,30 +98,11 @@ EOH;
 }
 
 /**
- * Implements hook_theme_suggestions_menu_alter().
+ * Registry_alter()
  */
-function gin_toolbar_theme_suggestions_menu_alter(array &$suggestions, array $variables) {
-  if ($variables['theme_hook_original'] == 'menu__toolbar__admin') {
-    $suggestions[] = 'menu__toolbar__gin';
-  }
-}
-
-/**
- * Theme()
- */
-function gin_toolbar_theme() {
-  // Page.
-  $theme['toolbar'] = [
-    'template' => 'toolbar',
-  ];
-  $theme['menu__toolbar'] = [
-    'template' => 'menu--toolbar',
-  ];
-  $theme['menu__toolbar__gin'] = [
-    'template' => 'menu--toolbar--gin',
-  ];
-
-  return $theme;
+function gin_toolbar_theme_registry_alter(&$theme_registry) {
+  $theme_registry['toolbar']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
+  $theme_registry['menu__toolbar']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
 }
 
 /**

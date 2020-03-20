@@ -49,31 +49,14 @@ function gin_toolbar_page_attachments_alter(&$page) {
 }
 
 /**
- * Theme()
- */
-function gin_toolbar_theme() {
-  // Page.
-  $theme['toolbar__gin'] = [
-    'template' => 'toolbar--gin',
-    'preprocess functions' => ['toolbar__gin'],
-  ];
-  $theme['menu__toolbar__gin'] = [
-    'template' => 'menu--toolbar--gin',
-    'preprocess functions' => ['menu__toolbar__gin'],
-  ];
-
-  return $theme;
-}
-
-/**
  * Toolbar alter().
  */
 function gin_toolbar_theme_registry_alter(&$theme_registry) {
   $classic_toolbar = theme_get_setting('classic_toolbar', 'gin');
 
   if (!$classic_toolbar) {
-    $theme_registry['toolbar__gin']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
-    $theme_registry['menu__toolbar__gin']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
+    $theme_registry['toolbar']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
+    $theme_registry['menu__toolbar']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
   }
 }
 

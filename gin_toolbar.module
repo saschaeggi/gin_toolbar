@@ -12,8 +12,8 @@ function gin_toolbar_preprocess_html(&$variables) {
   // Get theme darkmode config.
   $darkmode = theme_get_setting('enable_darkmode', 'gin');
 
-  // We need to check both because of backwards compatibility.
-  if ($darkmode === TRUE || $darkmode === 1) {
+  // Check if darkmode is enabled.
+  if ($darkmode === TRUE) {
     $variables['attributes']['class'][] = 'gin--dark-mode';
   }
 }

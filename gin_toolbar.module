@@ -70,6 +70,26 @@ function gin_toolbar_theme_registry_alter(&$theme_registry) {
 }
 
 /**
+ * Implements hook_preprocess_menu().
+ */
+function gin_toolbar_preprocess_menu(&$variables) {
+  if ($variables['menu_name'] == 'admin') {
+    $moduleHandler = \Drupal::service('module_handler');
+
+    // Check if the admin_toolbar module is installed.
+    foreach ($variables['items'] as $key => $item) {
+      $gin_id = str_replace('.', '-', $key);
+
+      $variables['items'][$key]['gin_id'] = $gin_id;
+
+      if ($moduleHandler->moduleExists('admin_toolbar')) {
+        $variables['items'][$key]['gin_admin_toolbar_module'] = TRUE;
+      }
+    }
+  }
+}
+
+/**
  * Increases or decreases the brightness of a color.
  */
 function _gin_toolbar_adjust_brightness($hexCode, $adjustPercent) {

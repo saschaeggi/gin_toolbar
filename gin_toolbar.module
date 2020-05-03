@@ -90,6 +90,18 @@ function gin_toolbar_preprocess_menu(&$variables) {
 }
 
 /**
+ * Implements hook_ckeditor_css_alter().
+ */
+function gin_toolbar_ckeditor_css_alter(array &$css) {
+  // Get theme darkmode config.
+  $darkmode = theme_get_setting('enable_darkmode', 'gin');
+
+  if ($darkmode) {
+    $css[] = drupal_get_path('theme', 'gin') . '/dist/css/gin_ckeditor.css';
+  }
+}
+
+/**
  * Increases or decreases the brightness of a color.
  */
 function _gin_toolbar_adjust_brightness($hexCode, $adjustPercent) {

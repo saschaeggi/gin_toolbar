@@ -10,7 +10,7 @@
  */
 function gin_toolbar_preprocess_html(&$variables) {
   // Get theme darkmode config.
-  $darkmode = theme_get_setting('enable_darkmode', 'gin');
+  $darkmode = _gin_toolbar_dark_mode_enabled();
 
   // Check if darkmode is enabled.
   if ($darkmode === TRUE) {
@@ -27,13 +27,13 @@ function gin_toolbar_page_attachments_alter(&$page) {
 
   if ($logged_in) {
     // Get theme configs.
-    $darkmode = theme_get_setting('enable_darkmode', 'gin');
     $darkmode_class = 'gin--dark-mode';
-    $preset_accent_color = theme_get_setting('preset_accent_color', 'gin');
-    $accent_color = theme_get_setting('accent_color', 'gin');
+    $darkmode = _gin_toolbar_dark_mode_enabled();
+    $preset_accent_color = _gin_toolbar_preset_accent_color();
+    $accent_color = _gin_toolbar_accent_color();
     $preset_focus_color = theme_get_setting('preset_focus_color', 'gin');
     $focus_color = theme_get_setting('focus_color', 'gin');
-    $classic_toolbar = theme_get_setting('classic_toolbar', 'gin');
+    $classic_toolbar = _gin_toolbar_classic_toolbar();
 
     if ($classic_toolbar) {
       // Attach the classic toolbar styles.
@@ -61,7 +61,7 @@ function gin_toolbar_page_attachments_alter(&$page) {
  * Toolbar alter().
  */
 function gin_toolbar_theme_registry_alter(&$theme_registry) {
-  $classic_toolbar = theme_get_setting('classic_toolbar', 'gin');
+  $classic_toolbar = _gin_toolbar_classic_toolbar();
 
   if (!$classic_toolbar) {
     $theme_registry['toolbar']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
@@ -94,7 +94,7 @@ function gin_toolbar_preprocess_menu(&$variables) {
  */
 function gin_toolbar_ckeditor_css_alter(array &$css) {
   // Get theme darkmode config.
-  $darkmode = theme_get_setting('enable_darkmode', 'gin');
+  $darkmode = _gin_toolbar_dark_mode_enabled();
 
   if ($darkmode) {
     $css[] = drupal_get_path('theme', 'gin') . '/dist/css/gin_ckeditor.css';
@@ -102,23 +102,199 @@ function gin_toolbar_ckeditor_css_alter(array &$css) {
 }
 
 /**
- * Increases or decreases the brightness of a color.
+ * Check user has enabled darkmode helper function.
  */
-function _gin_toolbar_adjust_brightness($hexCode, $adjustPercent) {
-  $hexCode = ltrim($hexCode, '#');
+function _gin_toolbar_user__get_user_id() {
+  $uid = Drupal::currentUser()->id();
 
-  if (strlen($hexCode) == 3) {
-    $hexCode = $hexCode[0] . $hexCode[0] . $hexCode[1] . $hexCode[1] . $hexCode[2] . $hexCode[2];
+  if (empty($uid)) {
+    return NULL;
+  }
+  else {
+    return $uid;
+  }
+}
+
+/**
+ * Check user has enabled darkmode helper function.
+ */
+function _gin_toolbar_user__overrides_enabled() {
+  $uid = _gin_toolbar_user__get_user_id();
+
+  /** @var \Drupal\user\UserDataInterface $userData */
+  $userData = Drupal::service('user.data');
+
+  $enableUserSetting = $userData->get('gin', $uid, 'enable_user_settings');
+  $enableUserSetting = $enableUserSetting === 1 || $enableUserSetting === '1' ? TRUE : $enableUserSetting;
+  $enableUserSetting = $enableUserSetting === 0 || $enableUserSetting === '0' ? FALSE : $enableUserSetting;
+
+  if ($uid && $enableUserSetting === TRUE) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Enable darkmode helper function.
+ */
+function _gin_toolbar_dark_mode_enabled() {
+  // Get user config.
+  if (_gin_toolbar_user__overrides_enabled()) {
+    $uid = _gin_toolbar_user__get_user_id();
+    $darkmode = _gin_toolbar_user__get_darkmode_enabled();
+
+    // Convert older versions to boolean.
+    $darkmode = $darkmode === 0 || $darkmode === '0' ? FALSE : $darkmode;
+    $darkmode = $darkmode === 1 || $darkmode === '1' ? TRUE : $darkmode;
+  }
+  // Get general config.
+  else {
+    $darkmode = theme_get_setting('enable_darkmode', 'gin');
   }
 
-  $hexCode = array_map('hexdec', str_split($hexCode, 2));
+  return $darkmode;
+}
 
-  foreach ($hexCode as & $color) {
-    $adjustableLimit = $adjustPercent < 0 ? $color : 255 - $color;
-    $adjustAmount = ceil($adjustableLimit * $adjustPercent);
+/**
+ * Check user has enabled darkmode helper function.
+ */
+function _gin_toolbar_user__get_darkmode_enabled() {
+  $uid = _gin_toolbar_user__get_user_id();
 
-    $color = str_pad(dechex($color + $adjustAmount), 2, '0', STR_PAD_LEFT);
+  if ($uid) {
+    /** @var \Drupal\user\UserDataInterface $userData */
+    $userData = Drupal::service('user.data');
+
+    return $userData->get('gin', $uid, 'enable_darkmode');
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Accent color helper function.
+ */
+function _gin_toolbar_preset_accent_color() {
+  if (_gin_toolbar_user__overrides_enabled()) {
+    return _gin_toolbar_user__get_preset_accentcolor();
+  }
+  else {
+    return theme_get_setting('preset_accent_color', 'gin');
+  }
+}
+
+/**
+ * User Accent color helper function.
+ */
+function _gin_toolbar_user__get_preset_accentcolor() {
+  $uid = _gin_toolbar_user__get_user_id();
+
+  /** @var \Drupal\user\UserDataInterface $userData */
+  $userData = Drupal::service('user.data');
+
+  if ($userData->get('gin', $uid, 'preset_accent_color') !== NULL) {
+    return $userData->get('gin', $uid, 'preset_accent_color');
+  }
+  else {
+    return NULL;
+  }
+}
+
+/**
+ * Accent color helper function.
+ */
+function _gin_toolbar_accent_color() {
+  if (_gin_toolbar_user__overrides_enabled() && _gin_toolbar_user__accentcolor()) {
+    return _gin_toolbar_user__accentcolor();
+  }
+  else {
+    return theme_get_setting('accent_color', 'gin');
+  }
+}
+
+/**
+ * User Accent color helper function.
+ */
+function _gin_toolbar_user__accentcolor() {
+  $uid = _gin_toolbar_user__get_user_id();
+
+  /** @var \Drupal\user\UserDataInterface $userData */
+  $userData = Drupal::service('user.data');
+
+  if ($uid && $userData->get('gin', $uid, 'accent_color') !== NULL) {
+    return $userData->get('gin', $uid, 'accent_color');
+  }
+  else {
+    return NULL;
+  }
+}
+
+/**
+ * Accent color presets helper function.
+ */
+function _gin_toolbar_get_accent_color_presets() {
+  return [
+    'blue' => t('Claro Blue (Default)'),
+    'teal' => t('Teal'),
+    'dark_purple' => t('Dark Purple'),
+    'purple' => t('Purple'),
+    'green' => t('Green'),
+    'red' => t('Red'),
+    'orange' => t('Orange'),
+    'yellow' => t('Yellow'),
+    'pink' => t('Pink'),
+    'custom' => t('Custom'),
+  ];
+}
+
+/**
+ * Accent color preset label helper function.
+ */
+function _gin_toolbar_get_accent_color_preset_label($key) {
+  $options = _gin_toolbar_get_accent_color_presets();
+  if (!empty($options[$key])) {
+    return $options[$key];
+  }
+  return '';
+}
+
+/**
+ * Classic Toolbar helper function.
+ */
+function _gin_toolbar_classic_toolbar() {
+  // Get user config.
+  if (_gin_toolbar_user__overrides_enabled()) {
+    $uid = _gin_toolbar_user__get_user_id();
+    $classic_toolbar = _gin_toolbar_user__classic_toolbar();
+  }
+  // Get general config.
+  else {
+    $classic_toolbar = theme_get_setting('classic_toolbar', 'gin');
   }
 
-  return '#' . implode($hexCode);
+  // Convert older versions to boolean.
+  $classic_toolbar = $classic_toolbar === 0 || $classic_toolbar === '0' ? FALSE : $classic_toolbar;
+  $classic_toolbar = $classic_toolbar === 1 || $classic_toolbar === '1' ? TRUE : $classic_toolbar;
+
+  return $classic_toolbar;
+}
+
+/**
+ * User Classic Toolbar helper function.
+ */
+function _gin_toolbar_user__classic_toolbar() {
+  $uid = _gin_toolbar_user__get_user_id();
+
+  /** @var \Drupal\user\UserDataInterface $userData */
+  $userData = Drupal::service('user.data');
+
+  if ($userData->get('gin', $uid, 'classic_toolbar') !== NULL) {
+    return $userData->get('gin', $uid, 'classic_toolbar');
+  }
+  else {
+    return NULL;
+  }
 }

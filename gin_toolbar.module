@@ -73,7 +73,7 @@ function gin_toolbar_theme_registry_alter(&$theme_registry) {
  * Implements hook_preprocess_menu().
  */
 function gin_toolbar_preprocess_menu(&$variables) {
-  if ($variables['menu_name'] == 'admin') {
+  if (isset($variables['menu_name']) && $variables['menu_name'] == 'admin') {
     $moduleHandler = \Drupal::service('module_handler');
 
     // Check if the admin_toolbar module is installed.

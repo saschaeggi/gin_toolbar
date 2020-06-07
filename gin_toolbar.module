@@ -33,11 +33,15 @@ function gin_toolbar_page_attachments_alter(&$page) {
     $accent_color = _gin_toolbar_accent_color();
     $preset_focus_color = _gin_toolbar_get_admin_theme_setting('preset_focus_color');
     $focus_color = _gin_toolbar_get_admin_theme_setting('focus_color');
-    $classic_toolbar = _gin_toolbar_classic_toolbar();
+    $toolbar = _gin_toolbar_toolbar();
 
-    if ($classic_toolbar) {
+    if ($toolbar === 1) {
       // Attach the classic toolbar styles.
       $page['#attached']['library'][] = 'gin/gin_classic_toolbar';
+    }
+    elseif ($toolbar === 'horizontal') {
+      // Attach the horizontal toolbar styles.
+      $page['#attached']['library'][] = 'gin/gin_horizontal_toolbar';
     }
     else {
       // Attach toolbar styles.
@@ -61,12 +65,8 @@ function gin_toolbar_page_attachments_alter(&$page) {
  * Toolbar alter().
  */
 function gin_toolbar_theme_registry_alter(&$theme_registry) {
-  $classic_toolbar = _gin_toolbar_classic_toolbar();
-
-  if (!$classic_toolbar) {
-    $theme_registry['toolbar']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
-    $theme_registry['menu__toolbar']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
-  }
+  $theme_registry['toolbar']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
+  $theme_registry['menu__toolbar']['path'] = drupal_get_path('module', 'gin_toolbar') . '/templates';
 }
 
 /**
@@ -96,10 +96,9 @@ function gin_toolbar_preprocess_menu__toolbar(&$variables) {
   // Get theme configs.
   $icon_path = _gin_toolbar_get_admin_theme_setting('icon_path');
   $icon_default = _gin_toolbar_get_admin_theme_setting('icon_default');
-  $classic_toolbar = _gin_toolbar_classic_toolbar();
   $variables['default_icon'] = $icon_default;
 
-  if (!$classic_toolbar && !$icon_default) {
+  if (!$icon_default) {
     $variables['icon_path'] = $icon_path;
   }
 }
@@ -293,28 +292,27 @@ function _gin_toolbar_get_accent_color_preset_label($key) {
 /**
  * Classic Toolbar helper function.
  */
-function _gin_toolbar_classic_toolbar() {
+function _gin_toolbar_toolbar() {
   // Get user config.
   if (_gin_toolbar_user__overrides_enabled()) {
     $uid = _gin_toolbar_user__get_user_id();
-    $classic_toolbar = _gin_toolbar_user__classic_toolbar();
+    $toolbar = _gin_toolbar_user__toolbar();
   }
   // Get general config.
   else {
-    $classic_toolbar = _gin_toolbar_get_admin_theme_setting('classic_toolbar');
+    $toolbar = _gin_toolbar_get_admin_theme_setting('classic_toolbar');
   }
 
   // Convert older versions to boolean.
-  $classic_toolbar = $classic_toolbar === 0 || $classic_toolbar === '0' ? FALSE : $classic_toolbar;
-  $classic_toolbar = $classic_toolbar === 1 || $classic_toolbar === '1' ? TRUE : $classic_toolbar;
+  $toolbar = $toolbar === TRUE || $toolbar === 'true' ||  $toolbar === '1' || $toolbar === 1 ? 1 : $toolbar;
 
-  return $classic_toolbar;
+  return $toolbar;
 }
 
 /**
  * User Classic Toolbar helper function.
  */
-function _gin_toolbar_user__classic_toolbar() {
+function _gin_toolbar_user__toolbar() {
   $uid = _gin_toolbar_user__get_user_id();
 
   /** @var \Drupal\user\UserDataInterface $userData */

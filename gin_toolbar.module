@@ -11,10 +11,29 @@
 function gin_toolbar_preprocess_html(&$variables) {
   // Get theme darkmode config.
   $darkmode = _gin_toolbar_dark_mode_enabled();
+  $toolbar = _gin_toolbar_toolbar();
 
   // Check if darkmode is enabled.
   if ($darkmode === TRUE) {
     $variables['attributes']['class'][] = 'gin--dark-mode';
+  }
+
+  // Only add gin--classic-toolbar class if user has permission.
+  if (!\Drupal::currentUser()->hasPermission('access toolbar')) {
+    return;
+  }
+
+  // Check if classic_toolbar is active.
+  if ($toolbar === 1) {
+    $variables['attributes']['class'][] = 'gin--classic-toolbar';
+  }
+  // If modern horizontal Toolbar is active.
+  elseif ($toolbar === 'horizontal') {
+    $variables['attributes']['class'][] = 'gin--horizontal-toolbar';
+  }
+  // Sidebar toolbar.
+  else {
+    $variables['attributes']['class'][] = 'gin--vertical-toolbar';
   }
 }
 

@@ -41,43 +41,38 @@ function gin_toolbar_preprocess_html(&$variables) {
  * Implements hook_preprocess_HOOK() for page_attachments.
  */
 function gin_toolbar_page_attachments_alter(&$page) {
-  // Is User logged in?
-  $logged_in = \Drupal::currentUser()->isAuthenticated();
+  // Get theme configs.
+  $darkmode_class = 'gin--dark-mode';
+  $darkmode = _gin_toolbar_dark_mode_enabled();
+  $preset_accent_color = _gin_toolbar_preset_accent_color();
+  $accent_color = _gin_toolbar_accent_color();
+  $preset_focus_color = _gin_toolbar_get_admin_theme_setting('preset_focus_color');
+  $focus_color = _gin_toolbar_get_admin_theme_setting('focus_color');
+  $toolbar = _gin_toolbar_toolbar();
 
-  if ($logged_in) {
-    // Get theme configs.
-    $darkmode_class = 'gin--dark-mode';
-    $darkmode = _gin_toolbar_dark_mode_enabled();
-    $preset_accent_color = _gin_toolbar_preset_accent_color();
-    $accent_color = _gin_toolbar_accent_color();
-    $preset_focus_color = _gin_toolbar_get_admin_theme_setting('preset_focus_color');
-    $focus_color = _gin_toolbar_get_admin_theme_setting('focus_color');
-    $toolbar = _gin_toolbar_toolbar();
-
-    if ($toolbar === 1) {
-      // Attach the classic toolbar styles.
-      $page['#attached']['library'][] = 'gin/gin_classic_toolbar';
-    }
-    elseif ($toolbar === 'horizontal') {
-      // Attach the horizontal toolbar styles.
-      $page['#attached']['library'][] = 'gin/gin_horizontal_toolbar';
-    }
-    else {
-      // Attach toolbar styles.
-      $page['#attached']['library'][] = 'gin/gin_toolbar';
-    }
-
-    // Attach accent overrides CSS.
-    $page['#attached']['library'][] = 'gin/gin_accent';
-
-    // Expose settings to JS.
-    $page['#attached']['drupalSettings']['gin']['darkmode'] = $darkmode;
-    $page['#attached']['drupalSettings']['gin']['darkmode_class'] = $darkmode_class;
-    $page['#attached']['drupalSettings']['gin']['preset_accent_color'] = $preset_accent_color;
-    $page['#attached']['drupalSettings']['gin']['accent_color'] = $accent_color;
-    $page['#attached']['drupalSettings']['gin']['preset_focus_color'] = $preset_focus_color;
-    $page['#attached']['drupalSettings']['gin']['focus_color'] = $focus_color;
+  if ($toolbar === 1) {
+    // Attach the classic toolbar styles.
+    $page['#attached']['library'][] = 'gin/gin_classic_toolbar';
   }
+  elseif ($toolbar === 'horizontal') {
+    // Attach the horizontal toolbar styles.
+    $page['#attached']['library'][] = 'gin/gin_horizontal_toolbar';
+  }
+  else {
+    // Attach toolbar styles.
+    $page['#attached']['library'][] = 'gin/gin_toolbar';
+  }
+
+  // Attach accent overrides CSS.
+  $page['#attached']['library'][] = 'gin/gin_accent';
+
+  // Expose settings to JS.
+  $page['#attached']['drupalSettings']['gin']['darkmode'] = $darkmode;
+  $page['#attached']['drupalSettings']['gin']['darkmode_class'] = $darkmode_class;
+  $page['#attached']['drupalSettings']['gin']['preset_accent_color'] = $preset_accent_color;
+  $page['#attached']['drupalSettings']['gin']['accent_color'] = $accent_color;
+  $page['#attached']['drupalSettings']['gin']['preset_focus_color'] = $preset_focus_color;
+  $page['#attached']['drupalSettings']['gin']['focus_color'] = $focus_color;
 }
 
 /**

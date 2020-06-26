@@ -13,6 +13,7 @@ function gin_toolbar_preprocess_html(&$variables) {
   $darkmode = _gin_toolbar_dark_mode_enabled();
   $preset_accent_color = _gin_toolbar_preset_accent_color();
   $toolbar = _gin_toolbar_toolbar();
+  $high_contrast_mode = _gin_toolbar_highcontrastmode_enabled();
 
   // Check if darkmode is enabled.
   if ($darkmode === TRUE) {
@@ -22,6 +23,11 @@ function gin_toolbar_preprocess_html(&$variables) {
   // Set accent color.
   if ($preset_accent_color) {
     $variables['attributes']['data-gin-accent'] = $preset_accent_color;
+  }
+
+  // High contast mode.
+  if ($high_contrast_mode === TRUE) {
+    $variables['attributes']['class'][] = 'gin--high-contrast-mode';
   }
 
   // Only add gin--classic-toolbar class if user has permission.
@@ -48,13 +54,17 @@ function gin_toolbar_preprocess_html(&$variables) {
  */
 function gin_toolbar_page_attachments_alter(&$page) {
   // Get theme configs.
-  $darkmode_class = 'gin--dark-mode';
   $darkmode = _gin_toolbar_dark_mode_enabled();
   $preset_accent_color = _gin_toolbar_preset_accent_color();
   $accent_color = _gin_toolbar_accent_color();
   $preset_focus_color = _gin_toolbar_get_admin_theme_setting('preset_focus_color');
   $focus_color = _gin_toolbar_get_admin_theme_setting('focus_color');
   $toolbar = _gin_toolbar_toolbar();
+  $highcontrastmode = _gin_toolbar_highcontrastmode_enabled();
+
+  // Define darkmode class.
+  $darkmode_class = 'gin--dark-mode';
+  $highcontrastmode_class = 'gin--high-contrast-mode';
 
   if ($toolbar === 1) {
     // Attach the classic toolbar styles.
@@ -79,6 +89,8 @@ function gin_toolbar_page_attachments_alter(&$page) {
   $page['#attached']['drupalSettings']['gin']['accent_color'] = $accent_color;
   $page['#attached']['drupalSettings']['gin']['preset_focus_color'] = $preset_focus_color;
   $page['#attached']['drupalSettings']['gin']['focus_color'] = $focus_color;
+  $page['#attached']['drupalSettings']['gin']['highcontrastmode'] = $highcontrastmode;
+  $page['#attached']['drupalSettings']['gin']['highcontrastmode_class'] = $highcontrastmode_class;
 }
 
 /**
@@ -343,5 +355,43 @@ function _gin_toolbar_user__toolbar() {
   }
   else {
     return NULL;
+  }
+}
+
+/**
+ * Enable high contrast mode helper function.
+ */
+function _gin_toolbar_highcontrastmode_enabled() {
+  // Get user config.
+  if (_gin_toolbar_user__overrides_enabled()) {
+    $uid = _gin_toolbar_user__get_user_id();
+    $hcm = _gin_toolbar_user__get_highcontrastmode_enabled();
+
+    // Convert older versions to boolean.
+    $hcm = $hcm === 0 || $hcm === '0' ? FALSE : $hcm;
+    $hcm = $hcm === 1 || $hcm === '1' ? TRUE : $hcm;
+  }
+  // Get general config.
+  else {
+    $hcm = theme_get_setting('high_contrast_mode', 'gin');
+  }
+
+  return $hcm;
+}
+
+/**
+ * Check user has enabled high contrast mode helper function.
+ */
+function _gin_toolbar_user__get_highcontrastmode_enabled() {
+  $uid = _gin_toolbar_user__get_user_id();
+
+  if ($uid) {
+    /** @var \Drupal\user\UserDataInterface $userData */
+    $userData = Drupal::service('user.data');
+
+    return $userData->get('gin', $uid, 'high_contrast_mode');
+  }
+  else {
+    return FALSE;
   }
 }

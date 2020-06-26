@@ -11,11 +11,17 @@
 function gin_toolbar_preprocess_html(&$variables) {
   // Get theme darkmode config.
   $darkmode = _gin_toolbar_dark_mode_enabled();
+  $preset_accent_color = _gin_toolbar_preset_accent_color();
   $toolbar = _gin_toolbar_toolbar();
 
   // Check if darkmode is enabled.
   if ($darkmode === TRUE) {
     $variables['attributes']['class'][] = 'gin--dark-mode';
+  }
+
+  // Set accent color.
+  if ($preset_accent_color) {
+    $variables['attributes']['data-gin-accent'] = $preset_accent_color;
   }
 
   // Only add gin--classic-toolbar class if user has permission.

@@ -167,13 +167,28 @@ function _gin_toolbar_gin_is_active() {
   $logged_in = \Drupal::currentUser()->isAuthenticated();
   $theme_handler = \Drupal::service('theme_handler')->listInfo();
 
-  $admin_theme_name = \Drupal::config('system.theme')->get('admin');
-  $admin_base_themes = $theme_handler[$admin_theme_name]->base_themes;
-  $admin_base_themes[$admin_theme_name] = $admin_theme_name;
-
+  // Check if set as frontend theme.
   $frontend_theme_name = \Drupal::config('system.theme')->get('default');
-  $frontend_base_themes = $theme_handler[$frontend_theme_name]->base_themes;
+
+  // Check if base themes are set.
+  if (isset($theme_handler[$frontend_theme_name]->base_themes)) {
+    $frontend_base_themes = $theme_handler[$frontend_theme_name]->base_themes;
+  }
+
+  // Add theme name to base theme array.
   $frontend_base_themes[$frontend_theme_name] = $frontend_theme_name;
+
+  // Check if set as admin theme.
+  $admin_theme_name = \Drupal::config('system.theme')->get('admin');
+
+  // Admin theme will have no value if is set to use the default theme.
+  if ($admin_theme_name) {
+    $admin_base_themes = $theme_handler[$admin_theme_name]->base_themes;
+    $admin_base_themes[$admin_theme_name] = $admin_theme_name;
+  }
+  else {
+    $admin_base_themes = $frontend_base_themes;
+  }
 
   // Check if Gin/Claro is activated in the frontend.
   if ($logged_in) {

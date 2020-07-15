@@ -94,6 +94,15 @@ function gin_toolbar_page_attachments_alter(&$page) {
     // Attach accent overrides CSS.
     $page['#attached']['library'][] = 'gin/gin_accent';
 
+    // If paragraphs_modal_edit is activated.
+    $moduleHandler = \Drupal::service('module_handler');
+
+    if ($moduleHandler->moduleExists('paragraphs_modal_edit')) {
+      // Attach the init script.
+      $page['#attached']['library'][] = 'claro/claro.drupal.dialog';
+      $page['#attached']['library'][] = 'gin/gin_dialog';
+    }
+
     // Expose settings to JS.
     $page['#attached']['drupalSettings']['gin']['darkmode'] = $darkmode;
     $page['#attached']['drupalSettings']['gin']['darkmode_class'] = $darkmode_class;

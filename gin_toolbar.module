@@ -161,12 +161,8 @@ function gin_toolbar_preprocess_menu__toolbar(&$variables) {
  * Implements hook_ckeditor_css_alter().
  */
 function gin_toolbar_ckeditor_css_alter(array &$css) {
-  // Get theme darkmode config.
-  $darkmode = _gin_toolbar_dark_mode_enabled();
-
-  if ($darkmode) {
-    $css[] = drupal_get_path('theme', 'gin') . '/dist/css/gin_ckeditor.css';
-  }
+  $css[] = drupal_get_path('theme', 'gin') . '/dist/css/gin_accent.css';
+  $css[] = drupal_get_path('theme', 'gin') . '/dist/css/gin_ckeditor.css';
 }
 
 /**

@@ -5,6 +5,8 @@
  * gin_toolbar.module
  */
 
+use Drupal\gin_toolbar\Render\Element\GinToolbar;
+
 /**
  * Implements hook_preprocess_HOOK() for html.
  */
@@ -173,6 +175,13 @@ function gin_toolbar_css_alter(&$css, $assets) {
     // Let's be on the safe side and assign a high number to it.
     $css[$path]['group'] = 101;
   }
+}
+
+/**
+ * Implements hook_toolbar_alter().
+ */
+function gin_toolbar_toolbar_alter(&$items) {
+  $items['administration']['tray']['toolbar_administration']['#pre_render'] = [[GinToolbar::class, 'preRenderTray']];
 }
 
 /**

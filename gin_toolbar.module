@@ -5,6 +5,8 @@
  * gin_toolbar.module
  */
 
+use Drupal\gin_toolbar\Render\Element\GinToolbar;
+
 /**
  * Implements hook_preprocess_HOOK() for html.
  */
@@ -176,6 +178,13 @@ function gin_toolbar_css_alter(&$css, $assets) {
 }
 
 /**
+ * Implements hook_toolbar_alter().
+ */
+function gin_toolbar_toolbar_alter(&$items) {
+  $items['administration']['tray']['toolbar_administration']['#pre_render'] = [[GinToolbar::class, 'preRenderTray']];
+}
+
+/**
  * Helper function for check if Gin is active.
  */
 function _gin_toolbar_gin_is_active() {
@@ -253,6 +262,10 @@ function _gin_toolbar_user__get_user_id() {
  * Check user has enabled darkmode helper function.
  */
 function _gin_toolbar_user__overrides_enabled() {
+  if (_gin_toolbar_get_admin_theme_setting('show_user_theme_settings') !== TRUE) {
+    return FALSE;
+  }
+
   $uid = _gin_toolbar_user__get_user_id();
 
   /** @var \Drupal\user\UserDataInterface $userData */

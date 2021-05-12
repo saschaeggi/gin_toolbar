@@ -5,6 +5,7 @@
  * gin_toolbar.module
  */
 
+use Drupal\Component\Utility\Html;
 use Drupal\gin_toolbar\Render\Element\GinToolbar;
 use Drupal\gin\GinSettings;
 
@@ -162,6 +163,31 @@ function gin_toolbar_css_alter(&$css, $assets) {
  */
 function gin_toolbar_toolbar_alter(&$items) {
   $items['administration']['tray']['toolbar_administration']['#pre_render'] = [[GinToolbar::class, 'preRenderTray']];
+}
+
+/**
+ * Adds toolbar-specific attributes to the menu link tree.
+ *
+ * @param \Drupal\Core\Menu\MenuLinkTreeElement[] $tree
+ *   The menu link tree to manipulate.
+ *
+ * @return \Drupal\Core\Menu\MenuLinkTreeElement[]
+ *   The manipulated menu link tree.
+ */
+function gin_toolbar_tools_menu_navigation_links(array $tree) {
+  foreach ($tree as $element) {
+    if ($element->subtree) {
+      gin_toolbar_tools_menu_navigation_links($element->subtree);
+    }
+    $link = $element->link;
+    // Get the non-localized title to make the icon class.
+    $definition = $link->getPluginDefinition();
+    $element->options['attributes']['class'][] = 'toolbar-icon';
+    $string = strtolower(str_replace(['.', ' ', '_'], ['-', '-', '-'], $definition['id']));
+    $element->options['attributes']['class'][] = Html::cleanCssIdentifier('toolbar-icon-' . $string);
+    $element->options['attributes']['title'] = $link->getDescription();
+  }
+  return $tree;
 }
 
 /**

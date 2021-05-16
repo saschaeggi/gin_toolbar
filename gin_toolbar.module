@@ -106,18 +106,19 @@ function gin_toolbar_theme_registry_alter(&$theme_registry) {
  */
 function gin_toolbar_preprocess_menu(&$variables) {
   if (isset($variables['theme_hook_original']) && $variables['theme_hook_original'] == 'menu__toolbar__admin') {
-    $moduleHandler = \Drupal::service('module_handler');
-
     // Check if the admin_toolbar module is installed.
     foreach ($variables['items'] as $key => $item) {
       $gin_id = str_replace('.', '-', $key);
-
       $variables['items'][$key]['gin_id'] = $gin_id;
-
-      if ($moduleHandler->moduleExists('admin_toolbar')) {
-        $variables['items'][$key]['gin_admin_toolbar_module'] = TRUE;
-      }
     }
+
+    // Expose Toolbar variant.
+    $variables['toolbar_variant'] = 'vertical';
+
+    // Move config & help menu items to end.
+    $variables['items'] += array_splice($variables['items'], array_search('system.admin_config', array_keys($variables['items'])), 1);
+    $variables['items'] += array_splice($variables['items'], array_search('system.admin_reports', array_keys($variables['items'])), 1);
+    $variables['items'] += array_splice($variables['items'], array_search('help.main', array_keys($variables['items'])), 1);
   }
 }
 
@@ -126,13 +127,18 @@ function gin_toolbar_preprocess_menu(&$variables) {
  */
 function gin_toolbar_preprocess_menu__toolbar(&$variables) {
   // Get theme configs.
-  $icon_path = _gin_toolbar_get_admin_theme_setting('icon_path');
-  $icon_default = _gin_toolbar_get_admin_theme_setting('icon_default');
-  $variables['default_icon'] = $icon_default;
+  /** @var \Drupal\gin\GinSettings $settings */
+  $settings = \Drupal::classResolver(GinSettings::class);
+  $logo_path = $settings->getDefault('icon_path');
+  $logo_default = $settings->getDefault('icon_default');
+  $variables['icon_default'] = $logo_default;
 
-  if (!$icon_default) {
-    $variables['icon_path'] = $icon_path;
+  if (!$logo_default) {
+    $variables['icon_path'] = $logo_path;
   }
+
+  // Expose Toolbar variant.
+  $variables['toolbar_variant'] = $settings->get('classic_toolbar');
 }
 
 /**
@@ -162,6 +168,9 @@ function gin_toolbar_css_alter(&$css, $assets) {
  * Implements hook_toolbar_alter().
  */
 function gin_toolbar_toolbar_alter(&$items) {
+  // Move the User tab to the end; devel uses 999 so up it.
+  $items['user']['#weight'] = 1000;
+
   $items['administration']['tray']['toolbar_administration']['#pre_render'] = [[GinToolbar::class, 'preRenderTray']];
 }
 
@@ -247,5 +256,8 @@ function _gin_toolbar_gin_is_active() {
  */
 function _gin_toolbar_get_admin_theme_setting($setting) {
   $admin_theme = \Drupal::configFactory()->get('system.theme')->get('admin');
+  if (empty($admin_theme)) {
+    $admin_theme = \Drupal::configFactory()->get('system.theme')->get('default');
+  }
   return theme_get_setting($setting, $admin_theme);
 }

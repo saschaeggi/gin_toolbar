@@ -6,6 +6,7 @@
  */
 
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\gin_toolbar\Render\Element\GinToolbar;
 use Drupal\gin\GinSettings;
 
@@ -203,6 +204,20 @@ function gin_toolbar_tools_menu_navigation_links(array $tree) {
     $element->options['attributes']['title'] = $link->getDescription();
   }
   return $tree;
+}
+
+/**
+ * Implements hook_help().
+ */
+function gin_toolbar_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the gin_toolbar module.
+    case 'help.page.gin_toolbar':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('This module changes the layout of the administration menu, and is actively compatible with <a href="@href" target="_blank">Gin Admin</a>.', ['@href' => 'https://www.drupal.org/project/gin']) . '</p>';
+      return $output;
+  }
 }
 
 /**

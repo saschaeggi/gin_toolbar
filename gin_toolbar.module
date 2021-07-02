@@ -209,6 +209,12 @@ function gin_toolbar_tools_menu_navigation_links(array $tree) {
  * Helper function for check if Gin is active.
  */
 function _gin_toolbar_gin_is_active() {
+
+  // Check if permissions are given.
+  if (!\Drupal::currentUser()->hasPermission('access toolbar')) {
+    return FALSE;
+  }
+
   $logged_in = \Drupal::currentUser()->isAuthenticated();
   $theme_handler = \Drupal::service('theme_handler')->listInfo();
 

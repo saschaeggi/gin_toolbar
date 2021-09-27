@@ -83,6 +83,11 @@ function gin_toolbar_page_attachments_alter(&$page) {
   $page['#attached']['library'][] = 'gin/gin_dialog';
   $page['#attached']['library'][] = 'claro/claro.drupal.dialog';
 
+  // Attach custom Gin overrides.
+  if (file_exists('public://gin-custom.css')) {
+    $page['#attached']['library'][] = 'gin/gin_custom_css';
+  }
+
   // Expose settings to JS.
   $page['#attached']['drupalSettings']['gin']['darkmode'] = $settings->get('enable_darkmode');
   $page['#attached']['drupalSettings']['gin']['darkmode_class'] = 'gin--dark-mode';

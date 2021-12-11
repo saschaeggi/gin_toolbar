@@ -95,7 +95,7 @@ function gin_toolbar_page_attachments_alter(&$page) {
   $page['#attached']['drupalSettings']['gin']['preset_accent_color'] = $settings->get('preset_accent_color');
   $page['#attached']['drupalSettings']['gin']['accent_color'] = $settings->get('accent_color');
   $page['#attached']['drupalSettings']['gin']['preset_focus_color'] = $settings->getDefault('preset_focus_color');
-  $page['#attached']['drupalSettings']['gin']['focus_color'] = $settings->getDefault('focus_color');;
+  $page['#attached']['drupalSettings']['gin']['focus_color'] = $settings->getDefault('focus_color');
   $page['#attached']['drupalSettings']['gin']['highcontrastmode'] = $settings->get('high_contrast_mode');
   $page['#attached']['drupalSettings']['gin']['highcontrastmode_class'] = 'gin--high-contrast-mode';
 }
@@ -133,6 +133,15 @@ function gin_toolbar_preprocess_toolbar(&$variables) {
         }
       }
     }
+  }
+
+  // Expose Route name.
+  $variables['route_name'] = \Drupal::routeMatch()->getRouteName();
+
+  if ($variables['route_name'] === 'entity.node.canonical') {
+    $node = \Drupal::request()->attributes->get('node');
+    $variables['node_id'] = $node->id();
+    $variables['node_title'] = $node->getTitle();
   }
 }
 
@@ -193,18 +202,20 @@ function gin_toolbar_ckeditor_css_alter(array &$css) {
   }
 
   if (file_exists($path . '/dist/css/gin_accent.css')) {
-    // Old naming
+    // Old naming.
     $css[] = $path . '/dist/css/gin_accent.css';
-  } else {
-    // New naming
+  }
+  else {
+    // New naming.
     $css[] = $path . '/dist/css/theme/accent.css';
   }
 
   if (file_exists($path . '/dist/css/gin_ckeditor.css')) {
-    // Old naming
+    // Old naming.
     $css[] = $path . '/dist/css/gin_ckeditor.css';
-  } else {
-    // New naming
+  }
+  else {
+    // New naming.
     $css[] = $path . '/dist/css/theme/ckeditor.css';
   }
 }

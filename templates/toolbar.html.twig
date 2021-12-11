@@ -10,7 +10,11 @@
   <div class="gin-layout-container">
     <div class="breadcrumb-wrapper">
       <div class="region region-breadcrumb">
-        <a class="gin-back-to-admin" href="/admin/content">{{ 'Administration'|t }}</a>
+      {% if route_name == 'entity.node.canonical' %}
+        <a class="gin-back-to-admin" href="/node/{{ node_id }}/edit">{{ 'Edit'|t }} {{ node_title }}</a>
+      {% else %}
+        <a class="gin-back-to-admin" href="/admin/content">{{ 'Back to Administration'|t }}</a>
+      {% endif %}
       </div>
     </div>
     {% include '@gin/navigation/toolbar--gin--secondary.html.twig' ignore missing %}

@@ -241,7 +241,12 @@ function gin_toolbar_toolbar_alter(&$items) {
   // Move the User tab to the end; devel uses 999 so up it.
   $items['user']['#weight'] = 1000;
 
-  $items['administration']['tray']['toolbar_administration']['#pre_render'] = [[GinToolbar::class, 'preRenderTray']];
+  $items['administration']['tray']['toolbar_administration']['#pre_render'] = [
+    [
+      GinToolbar::class,
+      'preRenderTray',
+    ],
+  ];
 }
 
 /**

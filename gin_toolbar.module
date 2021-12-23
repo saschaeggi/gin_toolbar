@@ -80,10 +80,6 @@ function gin_toolbar_page_attachments_alter(&$page) {
   // Attach the init script.
   $page['#attached']['library'][] = 'gin/gin_init';
 
-  // Add library for dialog.
-  $page['#attached']['library'][] = 'claro/claro.drupal.dialog';
-  $page['#attached']['library'][] = 'gin/gin_dialog';
-
   // Attach custom Gin overrides.
   if (file_exists('public://gin-custom.css')) {
     $page['#attached']['library'][] = 'gin/gin_custom_css';
@@ -98,6 +94,41 @@ function gin_toolbar_page_attachments_alter(&$page) {
   $page['#attached']['drupalSettings']['gin']['focus_color'] = $settings->getDefault('focus_color');
   $page['#attached']['drupalSettings']['gin']['highcontrastmode'] = $settings->get('high_contrast_mode');
   $page['#attached']['drupalSettings']['gin']['highcontrastmode_class'] = 'gin--high-contrast-mode';
+}
+
+/**
+ * Attach libraries.
+ */
+function gin_toolbar_library_info_alter(&$libraries, $extension) {
+  // Are we relevant?
+  if (!_gin_toolbar_gin_is_active()) {
+    return;
+  }
+
+  if ($extension == 'core' && isset($libraries['drupal.dialog'])) {
+    $libraries['drupal.dialog']['dependencies'][] = 'claro/claro.drupal.dialog';
+    $libraries['drupal.dialog']['dependencies'][] = 'gin/dialog';
+  }
+
+  if ($extension == 'core' && isset($libraries['ckeditor'])) {
+    $libraries['ckeditor']['dependencies'][] = 'gin/gin_ckeditor';
+    $libraries['ckeditor']['dependencies'][] = 'gin/ckeditor';
+  }
+
+  if ($extension == 'core' && isset($libraries['drupal.ajax'])) {
+    $libraries['drupal.ajax']['dependencies'][] = 'claro/ajax';
+    $libraries['drupal.ajax']['dependencies'][] = 'gin/ajax';
+  }
+
+  if ($extension == 'media_library' && isset($libraries['widget'])) {
+    $libraries['widget']['dependencies'][] = 'claro/media_library.theme';
+    $libraries['widget']['dependencies'][] = 'gin/media_library';
+  }
+
+  if ($extension == 'media_library' && isset($libraries['view'])) {
+    $libraries['view']['dependencies'][] = 'claro/media_library.theme';
+    $libraries['view']['dependencies'][] = 'gin/media_library';
+  }
 }
 
 /**

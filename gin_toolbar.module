@@ -90,8 +90,8 @@ function gin_toolbar_page_attachments_alter(&$page) {
   $page['#attached']['drupalSettings']['gin']['darkmode_class'] = 'gin--dark-mode';
   $page['#attached']['drupalSettings']['gin']['preset_accent_color'] = $settings->get('preset_accent_color');
   $page['#attached']['drupalSettings']['gin']['accent_color'] = $settings->get('accent_color');
-  $page['#attached']['drupalSettings']['gin']['preset_focus_color'] = $settings->getDefault('preset_focus_color');
-  $page['#attached']['drupalSettings']['gin']['focus_color'] = $settings->getDefault('focus_color');
+  $page['#attached']['drupalSettings']['gin']['preset_focus_color'] = $settings->get('preset_focus_color');
+  $page['#attached']['drupalSettings']['gin']['focus_color'] = $settings->get('focus_color');
   $page['#attached']['drupalSettings']['gin']['highcontrastmode'] = $settings->get('high_contrast_mode');
   $page['#attached']['drupalSettings']['gin']['highcontrastmode_class'] = 'gin--high-contrast-mode';
 }
@@ -226,28 +226,13 @@ function gin_toolbar_preprocess_menu__toolbar(&$variables) {
  * Implements hook_ckeditor_css_alter().
  */
 function gin_toolbar_ckeditor_css_alter(array &$css) {
-  $path = drupal_get_path('theme', 'gin');
+  $css_files = ['variables', 'accent', 'ckeditor'];
 
-  if (file_exists($path . '/dist/css/theme/variables.css')) {
-    $css[] = $path . '/dist/css/theme/variables.css';
-  }
-
-  if (file_exists($path . '/dist/css/gin_accent.css')) {
-    // Old naming.
-    $css[] = $path . '/dist/css/gin_accent.css';
-  }
-  else {
-    // New naming.
-    $css[] = $path . '/dist/css/theme/accent.css';
-  }
-
-  if (file_exists($path . '/dist/css/gin_ckeditor.css')) {
-    // Old naming.
-    $css[] = $path . '/dist/css/gin_ckeditor.css';
-  }
-  else {
-    // New naming.
-    $css[] = $path . '/dist/css/theme/ckeditor.css';
+  foreach ($css_files as $file) {
+    $custom_css = drupal_get_path('theme', 'gin') . '/dist/css/theme/' . $file . '.css';
+    if (!in_array($custom_css, $css, TRUE) && file_exists($custom_css)) {
+      $css[] = $custom_css;
+    }
   }
 }
 

@@ -316,6 +316,27 @@ function gin_toolbar_help($route_name, RouteMatchInterface $route_match) {
 }
 
 /**
+ * Implements hook_theme().
+ */
+function gin_toolbar_theme() {
+  return [
+    'container__administration_menu' => [
+      'base hook' => 'container',
+      'render element' => 'container',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter().
+ */
+function gin_toolbar_theme_suggestions_container_alter(&$suggestions, $variables) {
+  if (isset($variables['element']['administration_menu'])) {
+    $suggestions[] = 'container__administration_menu';
+  }
+}
+
+/**
  * Helper function for check if Gin is active.
  */
 function _gin_toolbar_gin_is_active() {

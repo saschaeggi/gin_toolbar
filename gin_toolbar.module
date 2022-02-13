@@ -169,6 +169,8 @@ function gin_toolbar_preprocess_toolbar(&$variables) {
 
   // Expose Route name.
   $variables['route_name'] = \Drupal::routeMatch()->getRouteName();
+  // Cache by route name & route parameters.
+  $variables['#cache']['contexts'][] = 'route';
 
   if ($variables['route_name'] === 'entity.node.canonical') {
     $node = \Drupal::request()->attributes->get('node');

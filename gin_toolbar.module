@@ -9,6 +9,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\gin_toolbar\Render\Element\GinToolbar;
+use Drupal\gin\GinUserPicture;
 use Drupal\gin\GinSettings;
 
 /**
@@ -149,6 +150,16 @@ function gin_toolbar_preprocess_toolbar(&$variables) {
   if (!_gin_toolbar_gin_is_active()) {
     return;
   }
+
+  // Use single `:` to make ControllerResolver get the class from definition.
+  // @see Drupal\Core\Controller\ControllerResolver->createController().
+  $variables['user_picture'] = [
+    '#lazy_builder' => [
+      GinUserPicture::class . ':build',
+      [],
+    ],
+    '#create_placeholder' => TRUE,
+  ];
 
   // Expose Toolbar variant.
   /** @var \Drupal\gin\GinSettings $settings */

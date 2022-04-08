@@ -5,7 +5,7 @@
  */
 #}
 {% include '@gin/navigation/toolbar--gin.html.twig' ignore missing %}
-{% if toolbar_variant != 'classic' %}
+{% if secondary_toolbar_frontend and toolbar_variant != 'classic' %}
 <div class="gin-secondary-toolbar gin-secondary-toolbar--frontend">
   <div class="gin-secondary-toolbar__layout-container">
     <div class="gin-breadcrumb-wrapper">

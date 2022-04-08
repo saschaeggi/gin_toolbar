@@ -165,6 +165,7 @@ function gin_toolbar_preprocess_toolbar(&$variables) {
   /** @var \Drupal\gin\GinSettings $settings */
   $settings = \Drupal::classResolver(GinSettings::class);
   $variables['toolbar_variant'] = $settings->get('classic_toolbar');
+  $variables['secondary_toolbar_frontend'] = $settings->get('secondary_toolbar_frontend');
 
   if ($variables['toolbar_variant'] !== 'classic') {
     // Move Admin Toolbar Search to start.

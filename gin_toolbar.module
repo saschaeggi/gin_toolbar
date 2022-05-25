@@ -131,6 +131,10 @@ function gin_toolbar_library_info_alter(&$libraries, $extension) {
     $libraries['view']['dependencies'][] = 'claro/media_library.theme';
     $libraries['view']['dependencies'][] = 'gin/media_library';
   }
+
+  if ($extension == 'workbench' && isset($libraries['workbench.toolbar'])) {
+    $libraries['workbench.toolbar']['dependencies'][] = 'gin/workbench';
+  }
 }
 
 /**

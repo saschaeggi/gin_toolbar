@@ -7,7 +7,9 @@
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Template\Attribute;
 use Drupal\gin\GinSettings;
 use Drupal\gin\GinUserPicture;
 use Drupal\gin_toolbar\Render\Element\GinToolbar;
@@ -198,6 +200,54 @@ function gin_toolbar_preprocess_toolbar(&$variables) {
       $variables['entity_edit_url'] = $entity->toUrl('edit-form');
     }
   }
+
+  if (isset($element['#secondary_items'])) {
+    // This largely replicates the logic in toolbar.module's
+    // template_preprocess_toolbar(), applying it to the unique-id copies of the
+    // toolbar items also appearing in the secondary toolbar.
+    // This step is necessary for the front-end as the secondary template is
+    // invoked by the primary. The secondary requires its own set of toolbar
+    // items to prevent the same id being rendered twice.
+    $variables['#secondary']['trays'] = [];
+    $variables['#secondary']['tabs'] = [];
+    $variables['#secondary']['remainder'] = [];
+    $element = $variables['element'];
+    foreach (Element::children($element['#secondary_items']) as $key) {
+      // Early rendering to collect the wrapper attributes from
+      // ToolbarItem elements.
+      if (!empty($element['#secondary_items'][$key])) {
+        Drupal::service('renderer')->render($element['#secondary_items'][$key]);
+      }
+      // Add the tray.
+      if (isset($element['#secondary_items'][$key]['tray'])) {
+        $attributes = [];
+        if (!empty($element['#secondary_items'][$key]['tray']['#wrapper_attributes'])) {
+          $attributes = $element['#secondary_items'][$key]['tray']['#wrapper_attributes'];
+        }
+        $variables['#secondary']['trays'][$key] = [
+          'links' => $element['#secondary_items'][$key]['tray'],
+          'attributes' => new Attribute($attributes),
+        ];
+        if (array_key_exists('#heading', $element[$key]['tray'])) {
+          $variables['#secondary']['trays'][$key]['label'] = $element[$key]['tray']['#heading'];
+        }
+      }
+
+      // Add the tab.
+      if (isset($element['#secondary_items'][$key]['tab'])) {
+        $attributes = [];
+        // Pass the wrapper attributes along.
+        if (!empty($element['#secondary_items'][$key]['#wrapper_attributes'])) {
+          $attributes = $element['#secondary_items'][$key]['#wrapper_attributes'];
+        }
+
+        $variables['#secondary']['tabs'][$key] = [
+          'link' => $element['#secondary_items'][$key]['tab'],
+          'attributes' => new Attribute($attributes),
+        ];
+      }
+    }
+  }
 }
 
 /**
@@ -278,6 +328,17 @@ function gin_toolbar_css_alter(&$css, $assets) {
  * Implements hook_toolbar_alter().
  */
 function gin_toolbar_toolbar_alter(&$items) {
+  // Create a copy of the items for potential use in a secondary toolbar. In
+  // the copies, the ids are explicitly set to prevent the page from rendering
+  // duplicate ids.
+  $secondary_items = $items;
+  foreach ($secondary_items as $key => &$item) {
+    if (isset($item['tab'])) {
+      $item['#id'] = $key . '-secondary';
+    }
+  }
+  $items['#secondary_items'] = $secondary_items;
+
   // Move the User tab to the end; devel uses 999 so up it.
   $items['user']['#weight'] = 1000;
 

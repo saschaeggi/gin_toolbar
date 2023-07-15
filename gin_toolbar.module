@@ -8,9 +8,9 @@
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\gin_toolbar\Render\Element\GinToolbar;
-use Drupal\gin\GinUserPicture;
 use Drupal\gin\GinSettings;
+use Drupal\gin\GinUserPicture;
+use Drupal\gin_toolbar\Render\Element\GinToolbar;
 
 /**
  * Implements hook_preprocess_HOOK() for html.

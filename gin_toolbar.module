@@ -42,8 +42,16 @@ function gin_toolbar_preprocess_html(&$variables) {
     return;
   }
 
-  // Set toolbar class.
-  $variables['attributes']['class'][] = 'gin--' . $toolbar . '-toolbar';
+  $module_handler = \Drupal::service('module_handler');
+
+  // Check for new Drupal navigation
+  if ($module_handler->moduleExists('navigation')) {
+    // Set toolbar class.
+    $variables['attributes']['class'][] = 'gin--navigation';
+  } else {
+    // Set toolbar class.
+    $variables['attributes']['class'][] = 'gin--' . $toolbar . '-toolbar';
+  }
 }
 
 /**
@@ -58,7 +66,15 @@ function gin_toolbar_page_attachments_alter(&$page) {
   // Get theme settings.
   /** @var \Drupal\gin\GinSettings $settings */
   $settings = \Drupal::classResolver(GinSettings::class);
-  $toolbar = $settings->get('classic_toolbar');
+  $module_handler = \Drupal::service('module_handler');
+
+  // Check for new Drupal navigation
+  if ($module_handler->moduleExists('navigation')) {
+    // Set toolbar class.
+    $toolbar = 'new';
+  } else {
+    $toolbar = $settings->get('classic_toolbar');
+  }
 
   // Attach the base library.
   $page['#attached']['library'][] = 'gin/gin_base';
@@ -73,6 +89,10 @@ function gin_toolbar_page_attachments_alter(&$page) {
   elseif ($toolbar === 'horizontal') {
     // Attach the horizontal toolbar styles.
     $page['#attached']['library'][] = 'gin/gin_horizontal_toolbar';
+  }
+  elseif ($toolbar === 'new') {
+    // Attach the new drupal navigation styles.
+    $page['#attached']['library'][] = 'gin/navigation';
   }
   else {
     // Attach toolbar styles.

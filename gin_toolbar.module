@@ -9,8 +9,11 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\gin\GinSettings;
+use Drupal\gin\GinNavigation;
 use Drupal\gin\GinUserPicture;
+use Drupal\gin\NavigationSectionManager;
 use Drupal\gin_toolbar\Render\Element\GinToolbar;
+use Drupal\Core\Cache\CacheBackendInterface;
 
 /**
  * Implements hook_preprocess_HOOK() for html.
@@ -42,10 +45,43 @@ function gin_toolbar_preprocess_html(&$variables) {
     return;
   }
 
-  $module_handler = \Drupal::service('module_handler');
-
   // Check for new Drupal navigation
-  if ($module_handler->moduleExists('navigation')) {
+  if ($toolbar === 'new') {
+    // Activate navigation.
+    // unset($variables['page_top']['toolbar']);
+
+    // Get navigation items.
+    /** @var \Drupal\gin\GinNavigaton $navigation */
+    $navigation = \Drupal::classResolver(GinNavigation::class);
+
+    // Set menus.
+    $menu['top']['bookmarks'] = $navigation->getNavigationBookmarksMenuItems();
+    $menu['middle']['content'] = $navigation->getNavigationContentMenuItems();
+    $menu['middle']['admin'] = $navigation->getNavigationAdminMenuItems();
+    $menu['bottom']['user'] = $navigation->getMenuNavigationUserItems();
+
+    $variables['page_top']['navigation'] = [
+      '#theme' => 'navigation',
+      '#menu_top' => $menu['top'],
+      '#menu_middle' =>  $menu['middle'],
+      '#menu_bottom' => $menu['bottom'],
+      '#attached' => [
+        'library' => [
+          'gin/navigation',
+        ],
+      ],
+      '#access' => \Drupal::currentUser()->hasPermission('access toolbar'),
+      '#weight' => -1,
+    ];
+
+    // Get the breadcrumb paths to maintain active trail in the toolbar.
+    $links = \Drupal::service('breadcrumb')->build(\Drupal::routeMatch())->getLinks();
+    $paths = [];
+    foreach ($links as $link) {
+      $paths[] = $link->getUrl()->getInternalPath();
+    }
+    $variables['#attached']['drupalSettings']['active_trail_paths'] = $paths;
+
     // Set toolbar class.
     $variables['attributes']['class'][] = 'gin--navigation';
   } else {
@@ -66,15 +102,7 @@ function gin_toolbar_page_attachments_alter(&$page) {
   // Get theme settings.
   /** @var \Drupal\gin\GinSettings $settings */
   $settings = \Drupal::classResolver(GinSettings::class);
-  $module_handler = \Drupal::service('module_handler');
-
-  // Check for new Drupal navigation
-  if ($module_handler->moduleExists('navigation')) {
-    // Set toolbar class.
-    $toolbar = 'new';
-  } else {
-    $toolbar = $settings->get('classic_toolbar');
-  }
+  $toolbar = $settings->get('classic_toolbar');
 
   // Attach the base library.
   $page['#attached']['library'][] = 'gin/gin_base';
@@ -267,6 +295,24 @@ function gin_toolbar_preprocess_menu__toolbar(&$variables) {
 }
 
 /**
+ * Implements hook_navigation().
+ */
+function gin_toolbar_preprocess_navigation(&$variables) {
+  // Get theme configs.
+  /** @var \Drupal\gin\GinSettings $settings */
+  $settings = \Drupal::classResolver(GinSettings::class);
+  $logo_path = $settings->getDefault('logo.path');
+  $logo_default = $settings->getDefault('logo.use_default');
+  $variables['icon_default'] = $logo_default;
+  $variables['toolbar_variant'] = $settings->get('classic_toolbar');
+  $variables['secondary_toolbar_frontend'] = $settings->get('secondary_toolbar_frontend');
+
+  if (!$logo_default) {
+    $variables['icon_path'] = $logo_path;
+  }
+}
+
+/**
  * Implements hook_ckeditor_css_alter().
  */
 function gin_toolbar_ckeditor_css_alter(array &$css) {
@@ -362,12 +408,43 @@ function gin_toolbar_help($route_name, RouteMatchInterface $route_match) {
  * Implements hook_theme().
  */
 function gin_toolbar_theme() {
-  return [
-    'container__administration_menu' => [
-      'base hook' => 'container',
-      'render element' => 'container',
+  $items['navigation'] = [
+    'variables' => [
+      'path' => \Drupal::service('extension.list.theme')->getPath('gin'),
+      'menu_middle' => [],
+      'menu_top' => [],
+      'menu_bottom' => [],
     ],
   ];
+
+  $items['menu_region__middle'] = [
+    'base hook' => 'menu',
+    'variables' => ['menu_name' => NULL, 'items' => [], 'attributes' => [], 'title' => NULL],
+  ];
+
+  $items['menu_region__top'] = [
+    'variables' => [
+      'links' => [],
+      'title' => NULL,
+      'menu_name' => NULL,
+    ],
+  ];
+
+  $items['menu_region__bottom'] = [
+    'variables' => [
+      'items' => [],
+      'title' => NULL,
+      'menu_name' => NULL,
+      'path' => \Drupal::service('extension.list.theme')->getPath('gin'),
+    ],
+  ];
+
+  $items['container__administration_menu'] = [
+    'base hook' => 'container',
+    'render element' => 'container',
+  ];
+
+  return $items;
 }
 
 /**

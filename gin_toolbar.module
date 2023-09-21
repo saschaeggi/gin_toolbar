@@ -296,14 +296,13 @@ function gin_toolbar_preprocess_navigation(&$variables) {
   // Get theme configs.
   /** @var \Drupal\gin\GinSettings $settings */
   $settings = \Drupal::classResolver(GinSettings::class);
-  $logo_path = $settings->getDefault('logo.path');
   $logo_default = $settings->getDefault('logo.use_default');
   $variables['icon_default'] = $logo_default;
   $variables['toolbar_variant'] = $settings->get('classic_toolbar');
   $variables['secondary_toolbar_frontend'] = $settings->get('secondary_toolbar_frontend');
 
   if (!$logo_default) {
-    $variables['icon_path'] = $logo_path;
+    $variables['icon_path'] = $settings->getDefault('logo.path');
   }
 }
 
@@ -403,6 +402,13 @@ function gin_toolbar_help($route_name, RouteMatchInterface $route_match) {
  * Implements hook_theme().
  */
 function gin_toolbar_theme() {
+  //Check if help is enabled.
+  $help_enabled = FALSE;
+  $module_handler = \Drupal::service('module_handler');
+  if ($module_handler->moduleExists('help')) {
+    $help_enabled = TRUE;
+  }
+
   $items['navigation'] = [
     'variables' => [
       'path' => \Drupal::service('extension.list.theme')->getPath('gin'),
@@ -432,6 +438,7 @@ function gin_toolbar_theme() {
 
   $items['menu_region__bottom'] = [
     'variables' => [
+      'help_enabled' => $help_enabled,
       'items' => [],
       'title' => NULL,
       'menu_name' => NULL,

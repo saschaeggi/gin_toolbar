@@ -230,7 +230,7 @@ function gin_toolbar_preprocess_toolbar(&$variables) {
   // Cache by route name & route parameters.
   $variables['#cache']['contexts'][] = 'route';
 
-  if (preg_match('#entity\.(?<entity_type_id>.+)\.canonical#', $variables['route_name'], $matches)) {
+  if (preg_match('#entity\.(?<entity_type_id>.+)\.(canonical|latest_version)#', $variables['route_name'], $matches)) {
     $entity = \Drupal::request()->attributes->get($matches['entity_type_id']);
 
     if ($entity instanceof EntityInterface && $entity->hasLinkTemplate('edit-form')) {

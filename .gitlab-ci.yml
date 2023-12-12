@@ -21,4 +21,4 @@ phpcs:
 stylelint:
   stage: test
   script:
-    - yarn version
+    - ls

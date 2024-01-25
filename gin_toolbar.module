@@ -43,6 +43,11 @@ function gin_toolbar_preprocess_html(&$variables) {
     return;
   }
 
+  // Only check for new Drupal navigation if we are not in a maintenance page.
+  if (isset($variables['page']['#theme']) && $variables['page']['#theme'] === 'maintenance_page') {
+    return;
+  }
+
   // Check if Navigation module is active.
   if (_gin_toolbar_module_is_active('navigation')) {
     $variables['attributes']['class'][] = 'gin--core-navigation';

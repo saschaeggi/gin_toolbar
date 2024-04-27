@@ -4,8 +4,17 @@
  * Include toolbar.html.twig template from Gin.
  */
 #}
-{% include '@gin/navigation/toolbar--gin.html.twig' ignore missing %}
-{% if secondary_toolbar_frontend and toolbar_variant != 'classic' %}
+{# JS fix #}
+{% include '@gin/navigation/fix-toolbar-js-error.html.twig' ignore missing with {
+  toolbar_variant,
+  core_navigation,
+} %}
+
+{% if not core_navigation %}
+  {% include '@gin/navigation/toolbar--gin.html.twig' ignore missing %}
+{% endif %}
+
+{% if secondary_toolbar_frontend and (toolbar_variant != 'classic' or core_navigation) %}
 <div class="gin-secondary-toolbar gin-secondary-toolbar--frontend"{{ toolbar_variant == 'vertical' or toolbar_variant == 'new' ? ' data-offset-top' : '' }}>
   <div class="gin-secondary-toolbar__layout-container">
     <div class="gin-breadcrumb-wrapper">

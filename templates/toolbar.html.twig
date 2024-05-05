@@ -4,12 +4,6 @@
  * Include toolbar.html.twig template from Gin.
  */
 #}
-{# JS fix #}
-{% include '@gin/navigation/fix-toolbar-js-error.html.twig' ignore missing with {
-  toolbar_variant,
-  core_navigation,
-} %}
-
 {% if not core_navigation %}
   {% include '@gin/navigation/toolbar--gin.html.twig' ignore missing %}
 {% endif %}

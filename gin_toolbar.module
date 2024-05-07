@@ -422,61 +422,65 @@ function gin_toolbar_help($route_name, RouteMatchInterface $route_match) {
  */
 function gin_toolbar_theme() {
   // Check if Navigation module is active.
-  if (!_gin_toolbar_module_is_active('navigation')) {
-    $items['navigation'] = [
-      'template' => 'navigation/navigation--gin',
-      'preprocess functions' => ['gin_toolbar_preprocess_navigation'],
-      'variables' => [
-        'icon_path' => NULL,
-        'path' => \Drupal::service('extension.list.theme')->getPath('gin'),
-        'menu_middle' => [],
-        'menu_top' => [],
-        'menu_bottom' => [],
-      ],
-    ];
-
-    $items['menu_region__top'] = [
-      'template' => 'navigation/menu-region--top',
-      'variables' => [
-        'links' => [],
-        'title' => NULL,
-        'menu_name' => NULL,
-      ],
-    ];
-
-    $items['menu_region__middle'] = [
-      'template' => 'navigation/menu-region--middle',
-      'base hook' => 'menu',
-      'variables' => [
-        'menu_name' => NULL,
-        'items' => [],
-        'attributes' => [],
-        'title' => NULL,
-      ],
-    ];
-
-    // Check if help is enabled.
-    $help_enabled = _gin_toolbar_module_is_active('help');
-
-    $items['menu_region__bottom'] = [
-      'template' => 'navigation/menu-region--bottom',
-      'variables' => [
-        'help_enabled' => $help_enabled,
-        'items' => [],
-        'title' => NULL,
-        'menu_name' => NULL,
-        'path' => \Drupal::service('extension.list.theme')->getPath('gin'),
-      ],
-    ];
-
-    $items['container__administration_menu'] = [
-      'template' => 'container--administration-menu',
-      'base hook' => 'container',
-      'render element' => 'container',
-    ];
-
-    return $items;
+  if (_gin_toolbar_module_is_active('navigation')) {
+    return [];
   }
+
+  $items = [];
+
+  $items['navigation'] = [
+    'template' => 'navigation/navigation--gin',
+    'preprocess functions' => ['gin_toolbar_preprocess_navigation'],
+    'variables' => [
+      'icon_path' => NULL,
+      'path' => \Drupal::service('extension.list.theme')->getPath('gin'),
+      'menu_middle' => [],
+      'menu_top' => [],
+      'menu_bottom' => [],
+    ],
+  ];
+
+  $items['menu_region__top'] = [
+    'template' => 'navigation/menu-region--top',
+    'variables' => [
+      'links' => [],
+      'title' => NULL,
+      'menu_name' => NULL,
+    ],
+  ];
+
+  $items['menu_region__middle'] = [
+    'template' => 'navigation/menu-region--middle',
+    'base hook' => 'menu',
+    'variables' => [
+      'menu_name' => NULL,
+      'items' => [],
+      'attributes' => [],
+      'title' => NULL,
+    ],
+  ];
+
+  // Check if help is enabled.
+  $help_enabled = _gin_toolbar_module_is_active('help');
+
+  $items['menu_region__bottom'] = [
+    'template' => 'navigation/menu-region--bottom',
+    'variables' => [
+      'help_enabled' => $help_enabled,
+      'items' => [],
+      'title' => NULL,
+      'menu_name' => NULL,
+      'path' => \Drupal::service('extension.list.theme')->getPath('gin'),
+    ],
+  ];
+
+  $items['container__administration_menu'] = [
+    'template' => 'container--administration-menu',
+    'base hook' => 'container',
+    'render element' => 'container',
+  ];
+
+  return $items;
 }
 
 /**

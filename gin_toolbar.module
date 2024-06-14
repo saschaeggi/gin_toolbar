@@ -45,6 +45,23 @@ function gin_toolbar_preprocess_html(&$variables) {
 
   // Only check for new Drupal navigation if we are not in a maintenance page.
   if (isset($variables['page']['#theme']) && $variables['page']['#theme'] === 'maintenance_page') {
+    // Gin's custom styling for the maintenance page.
+    $variables['#attached']['library'][] = 'gin/maintenance_page';
+
+    // Get theme settings.
+    /** @var \Drupal\gin\GinSettings $settings */
+    $settings = \Drupal::classResolver(GinSettings::class);
+
+    // Expose settings to JS.
+    $variables['#attached']['drupalSettings']['gin']['darkmode'] = $settings->get('enable_darkmode');
+    $variables['#attached']['drupalSettings']['gin']['darkmode_class'] = 'gin--dark-mode';
+    $variables['#attached']['drupalSettings']['gin']['preset_accent_color'] = $settings->get('preset_accent_color');
+    $variables['#attached']['drupalSettings']['gin']['accent_color'] = $settings->get('accent_color');
+    $variables['#attached']['drupalSettings']['gin']['preset_focus_color'] = $settings->get('preset_focus_color');
+    $variables['#attached']['drupalSettings']['gin']['focus_color'] = $settings->get('focus_color');
+    $variables['#attached']['drupalSettings']['gin']['highcontrastmode'] = $settings->get('high_contrast_mode');
+    $variables['#attached']['drupalSettings']['gin']['highcontrastmode_class'] = 'gin--high-contrast-mode';
+
     return;
   }
 

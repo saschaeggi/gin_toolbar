@@ -318,21 +318,8 @@ function gin_toolbar_preprocess_navigation(&$variables) {
   $logo_default = $settings->getDefault('logo.use_default');
   $variables['icon_path'] = !$logo_default ? $settings->getDefault('logo.path') : '';
   $variables['toolbar_variant'] = $settings->get('classic_toolbar');
-  $variables['secondary_toolbar_frontend'] = $settings->get('secondary_toolbar_frontend');
-
-  if (!$logo_default) {
-    $variables['icon_path'] = $settings->getDefault('logo.path');
-  }
-}
-
-/**
- * Implements hook_top_bar().
- */
-function gin_toolbar_preprocess_top_bar(&$variables) {
-  // Get theme configs.
-  /** @var \Drupal\gin\GinSettings $settings */
-  $settings = \Drupal::classResolver(GinSettings::class);
   $variables['core_navigation'] = _gin_toolbar_module_is_active('navigation');
+  $variables['is_backend'] = \Drupal::service('router.admin_context')->isAdminRoute();
   $variables['secondary_toolbar_frontend'] = $settings->get('secondary_toolbar_frontend');
   $variables['gin_secondary_toolbar'] = [
     '#type' => 'toolbar',
@@ -345,6 +332,16 @@ function gin_toolbar_preprocess_top_bar(&$variables) {
       'id' => 'toolbar-administration-secondary',
     ],
   ];
+
+  if (!$logo_default) {
+    $variables['icon_path'] = $settings->getDefault('logo.path');
+  }
+}
+
+/**
+ * Implements hook_top_bar().
+ */
+function gin_toolbar_preprocess_top_bar(&$variables) {
   $variables['#attached']['library'][] = 'gin/top_bar';
 }
 

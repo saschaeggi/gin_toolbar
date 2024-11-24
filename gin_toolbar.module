@@ -5,6 +5,7 @@
  * gin_toolbar.module
  */
 
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -115,6 +116,19 @@ function gin_toolbar_page_attachments_alter(&$page) {
   // Get theme settings.
   /** @var \Drupal\gin\GinSettings $settings */
   $settings = \Drupal::classResolver(GinSettings::class);
+
+  // Inject enable darkmode.
+  $page['#attached']['html_head'][] = [
+    [
+      '#tag' => 'script',
+      '#attributes' => [
+        'type' => 'application/json',
+        'id' => 'gin-setting-darkmode',
+      ],
+      '#value' => new FormattableMarkup('{ "ginDarkmode": "@value" }', ['@value' => $settings->get('enable_darkmode')]),
+    ],
+    'gin_darkmode',
+  ];
 
   // Expose settings to JS.
   $page['#attached']['drupalSettings']['gin']['darkmode'] = $settings->get('enable_darkmode');

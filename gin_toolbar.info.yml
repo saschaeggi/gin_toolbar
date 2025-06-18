@@ -1,7 +1,7 @@
 type: module
 name: Gin Toolbar
 description: Gin Toolbar for Gin Theme
-core_version_requirement: ^9 || ^10 || ^11 <11.2
+core_version_requirement: ^10 || ^11 <11.2
 
 dependencies:
   - drupal:toolbar

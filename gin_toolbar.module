@@ -566,11 +566,6 @@ function gin_toolbar_theme() {
  * Registry alter().
  */
 function gin_toolbar_theme_registry_alter(&$theme_registry) {
-  // Are we relevant?
-  if (!_gin_toolbar_gin_is_active()) {
-    return;
-  }
-
   $templates_path = \Drupal::service('extension.list.module')->getPath('gin_toolbar') . '/templates';
 
   $theme_registry['toolbar']['path'] = $templates_path;

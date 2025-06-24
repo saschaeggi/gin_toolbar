@@ -176,11 +176,6 @@ function gin_toolbar_page_attachments_alter(&$page) {
  * Attach libraries.
  */
 function gin_toolbar_library_info_alter(&$libraries, $extension) {
-  // Are we relevant?
-  if (!_gin_toolbar_gin_is_active()) {
-    return;
-  }
-
   if ($extension == 'core' && isset($libraries['drupal.dialog'])) {
     $libraries['drupal.dialog']['dependencies'][] = 'claro/claro.drupal.dialog';
     $libraries['drupal.dialog']['dependencies'][] = 'gin/dialog';
@@ -582,11 +577,6 @@ function gin_toolbar_theme_registry_alter(&$theme_registry) {
  * Implements hook_theme_suggestions_HOOK_alter().
  */
 function gin_toolbar_theme_suggestions_container_alter(&$suggestions, array $variables) {
-  // Are we relevant?
-  if (!_gin_toolbar_gin_is_active()) {
-    return;
-  }
-
   if (isset($variables['element']['administration_menu'])) {
     $suggestions[] = 'container__administration_menu';
   }

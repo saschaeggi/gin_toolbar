@@ -41,7 +41,10 @@ function gin_toolbar_preprocess_html(&$variables) {
   }
 
   // Only add gin--classic-toolbar class if user has permission.
-  if (!\Drupal::currentUser()->hasPermission('access toolbar')) {
+  if (
+    !\Drupal::currentUser()->hasPermission('access toolbar') &&
+    !\Drupal::currentUser()->hasPermission('access navigation')
+  ) {
     return;
   }
 
@@ -350,7 +353,7 @@ function gin_toolbar_preprocess_navigation(&$variables) {
   $variables['secondary_toolbar_frontend'] = $settings->get('secondary_toolbar_frontend');
   $variables['gin_secondary_toolbar'] = [
     '#type' => 'toolbar',
-    '#access' => \Drupal::currentUser()->hasPermission('access toolbar'),
+    '#access' => \Drupal::currentUser()->hasPermission('access toolbar') || \Drupal::currentUser()->hasPermission('access navigation'),
     '#cache' => [
       'keys' => ['toolbar_secondary'],
       'contexts' => ['user.permissions'],
@@ -590,7 +593,10 @@ function _gin_toolbar_gin_is_active() {
 
   if (!isset($gin_activated)) {
     // Check if permissions are given.
-    if (!\Drupal::currentUser()->hasPermission('access toolbar')) {
+    if (
+      !\Drupal::currentUser()->hasPermission('access toolbar') &&
+      !\Drupal::currentUser()->hasPermission('access navigation')
+    ) {
       $gin_activated = FALSE;
     }
     else {

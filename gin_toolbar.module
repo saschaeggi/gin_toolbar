@@ -531,12 +531,20 @@ function gin_toolbar_theme() {
 function gin_toolbar_theme_registry_alter(&$theme_registry) {
   $templates_path = \Drupal::service('extension.list.module')->getPath('gin_toolbar') . '/templates';
 
-  $theme_registry['toolbar']['path'] = $templates_path;
-  $theme_registry['toolbar__gin']['path'] = $templates_path;
-  $theme_registry['menu__toolbar']['path'] = $templates_path;
-  $theme_registry['navigation']['path'] = $templates_path;
-  $theme_registry['navigation__gin']['path'] = $templates_path;
-  $theme_registry['top_bar']['path'] = $templates_path;
+  $targets = [
+    'toolbar',
+    'toolbar__gin',
+    'menu__toolbar',
+    'navigation',
+    'navigation__gin',
+    'top_bar',
+  ];
+
+  foreach ($targets as $hook) {
+    if (isset($theme_registry[$hook])) {
+      $theme_registry[$hook]['path'] = $templates_path;
+    }
+  }
 }
 
 /**
